@@ -1,7 +1,7 @@
 Design Document-vigenereDesignDocument.pdf 
 
-Codebase- vigenere.py
+Base code - vigenere.py
 
-Prototype- vigenerePrototype.py (run this file along with vigenere.py in same directory)
+Driver - run_vigenere.py (run this file along with vigenere.py in same directory)
 
-UnitTests-test_functionName.py 
+UnitTests - test_[function_name]_unittest.py
