@@ -1,7 +1,6 @@
 import string
 import codecs
 import pickle
-import re
 
 #Create the tableau 'tabula recta'
 def create_tables(special_chars=[], alphabet = string.printable):
