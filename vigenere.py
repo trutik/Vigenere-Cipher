@@ -1,33 +1,26 @@
 import string
 import codecs
 import pickle
+import re
 
 #Create the tableau 'tabula recta'
-def createTables(specialChars):
-    specialCharsString = ''.join(specialChars)
-    alphabet=string.printable
-    # alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+def create_tables(special_chars=[], alphabet = string.printable):
     alphabet = list(alphabet)
     #Extend alphabet with special characters
-    alphabet.extend(specialChars)
-
-    #Set alphabet for easy testing if specialChars is TEST
-    if specialCharsString=='TEST':
-        alphabet ='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        alphabet = list(alphabet)
+    alphabet.extend(special_chars)
 
     #Length will be used for modulo to represent shifting alphabet
     length = len(alphabet)
-    #Create Python Dictionary to represent the table {Key:Value} = {rowChar+columnChar: Character}
-    tableEnc = {}
-    tableDec = {}
+    #Create Python Dictionary to represent the table {Key:Value} = {row_char+columnChar: Character}
+    encryption_table = {}
+    decryption_table = {}
     #Iterate the table and store the mapping
-    for rowNumber, rowChar in enumerate(alphabet):
-        for colNumber, colChar in enumerate(alphabet):
-            char = alphabet[(rowNumber+colNumber)%(length)]
-            tableEnc[rowChar+colChar]=char
-            tableDec[rowChar+char]=colChar
-    return [tableEnc,tableDec]
+    for row_number, row_char in enumerate(alphabet):
+        for col_number, col_char in enumerate(alphabet):
+            char = alphabet[(row_number+col_number)%(length)]
+            encryption_table[row_char+col_char]=char
+            decryption_table[row_char+char]=col_char
+    return [encryption_table,decryption_table]
 
 #Encrypt message into ciphertext using key
 def encrypt(key,message,table,mode):
@@ -43,17 +36,17 @@ def encrypt(key,message,table,mode):
     if mode == 1:
         message = codecs.encode(pickle.dumps(message), "base64").decode()
 
-    messageList = list(message)
-    keyList = list(key)
-    keyLength = len(key)
+    message_list = list(message)
+    key_list = list(key)
+    key_length = len(key)
     ciphertext=''
     counter = 0
     #Retrieve mapping of each character in message and corresponding key character (charAbove)
-    for char in messageList:
-        charAbove=keyList[counter]
+    for char in message_list:
+        charAbove=key_list[counter]
         ciphertext = ciphertext + table[char+charAbove]
         counter = counter + 1
-        if counter==keyLength:
+        if counter==key_length:
             counter = 0
     return ciphertext
 
@@ -62,17 +55,17 @@ def decrypt(key,ciphertext,table,mode):
         print('Key empty, using default key')
         key='defaultkey' #set default key
 
-    ciphertextList = list(ciphertext)
-    keyList = list(key)
-    keyLength = len(key)
+    ciphertext_list = list(ciphertext)
+    key_list = list(key)
+    key_length = len(key)
     plaintext=''
     counter =0
     #Retrieve mapping of each character in ciphertext and corresponding key character (charAbove)
-    for char in ciphertextList:
-        keyChar = keyList[counter]
-        plaintext = plaintext + table[keyChar+char]
+    for char in ciphertext_list:
+        key_char = key_list[counter]
+        plaintext = plaintext + table[key_char+char]
         counter = counter + 1
-        if counter==keyLength:
+        if counter==key_length:
             counter = 0
 
     #If mode is all 1 (for all objects), de-serialise object before returning
@@ -82,29 +75,29 @@ def decrypt(key,ciphertext,table,mode):
     return plaintext
 
 #Gets all unique special characters from 'input' argument
-def getSpecialChars(input):
+def get_special_chars(input):
     alphabet=string.printable
     alphabetList= list(alphabet)
     #Remove characters already in alphabet and duplicates from input
-    specialCharacters = list()
+    special_characters = list()
     for char in input:
-        if (char in alphabet) or (char in specialCharacters):
-            #Dont add to specialCharacters
+        if (char in alphabet) or (char in special_characters):
+            #Dont add to special_characters
             pass
         else:
-            specialCharacters.append(char)
-    return specialCharacters
+            special_characters.append(char)
+    return special_characters
 
-def prototype():
-    userInput = input('Enter Special Chars \n')
-    specialChars = getSpecialChars(userInput)
-    tables = createTables(specialChars)
-    tableEnc = tables[0]
-    tableDec = tables[1]
+def run_vigenere():
+    user_input = input('Enter Special Chars \n')
+    special_chars = get_special_chars(user_input)
+    tables = create_tables(special_chars)
+    table_enc = tables[0]
+    table_dec = tables[1]
     while True:
-        userMsg = input('Enter message \n')
-        userKey = input('Enter key \n')
-        ciphertext = encrypt(userKey,userMsg,tableEnc,1)
+        user_msg = input('Enter message \n')
+        user_key = input('Enter key \n')
+        ciphertext = encrypt(user_key,user_msg,table_enc,1)
         print('Ciphertext: '+ciphertext)
-        plaintext = decrypt(userKey,ciphertext,tableDec,1)
+        plaintext = decrypt(user_key,ciphertext,table_dec,1)
         print('Plaintext: '+plaintext)
